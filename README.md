@@ -16,7 +16,7 @@ MFTR PDFから当月分を一括取り込み、ページ単位で編集・保存
 
 ## インストール（macOS）
 
-1. [Releasesページ](https://github.com/__USER__/pilot-logbook/releases/latest)から `.dmg` をダウンロード
+1. [Releasesページ](https://github.com/ispahanproject/pilot-logbook/releases/latest)から `.dmg` をダウンロード
    - Apple Silicon Mac → `Pilot-Logbook-x.y.z-arm64.dmg`
    - Intel Mac → `Pilot-Logbook-x.y.z.dmg`
 2. `.dmg`を開き、Pilot LogbookをApplicationsへドラッグ
