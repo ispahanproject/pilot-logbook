@@ -47,6 +47,7 @@ type UserMode = 'captain' | 'fo';
 
 const USER_MODE_KEY = 'pilotLogbook.userMode';
 const USER_AIRCRAFT_KEY = 'pilotLogbook.defaultAircraft';
+const USER_NAME_KEY = 'pilotLogbook.userName';
 const AIRCRAFT_OPTIONS = ['B738', 'B767', 'B777', 'B787', 'A350'] as const;
 type AircraftOption = typeof AIRCRAFT_OPTIONS[number];
 const DEFAULT_AIRCRAFT_FALLBACK: AircraftOption = 'B738';
@@ -212,6 +213,18 @@ function App() {
     try { window.localStorage.setItem(USER_AIRCRAFT_KEY, v); } catch { /* ignore */ }
   };
 
+  // --- Pilot name (header に表示) ---
+  const [userName, setUserNameRaw] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    return window.localStorage.getItem(USER_NAME_KEY) ?? '';
+  });
+  const setUserName = (v: string) => {
+    setUserNameRaw(v);
+    try { window.localStorage.setItem(USER_NAME_KEY, v); } catch { /* ignore */ }
+  };
+  const displayName = userName.trim() || 'Pilot';
+  const avatarChar = (userName.trim()[0] || 'P').toUpperCase();
+
   // モード別の自動転記
   //   FO   + 1/1        → PUS (pic) + PUS(X/C) (picXC)
   //   FO   + それ以外   → CO  (sic) + CO(X/C)  (xc)       ※離着陸ブランク含む
@@ -255,6 +268,7 @@ function App() {
         const { pages, cumBase } = await loadAllFromDb();
         setPages(pages);
         setCumBase(cumBase);
+        if (pages.length > 0) setCurrentPageIdx(pages.length - 1);
       } catch (err) {
         console.error('DB load failed', err);
       } finally {
@@ -918,7 +932,7 @@ function App() {
               <div className="text-[10px] text-slate-500 uppercase tracking-wider">
                 {userMode === 'captain' ? 'Captain' : 'First Officer'}
               </div>
-              <div className="text-sm font-medium">Kentaro / JAL</div>
+              <div className="text-sm font-medium">{displayName} / JAL</div>
             </div>
             <div
               className={`w-10 h-10 border flex items-center justify-center font-semibold transition-colors ${
@@ -927,7 +941,7 @@ function App() {
                   : 'bg-gradient-to-br from-cyan-400/20 to-cyan-600/10 border-cyan-400/30 text-cyan-400'
               }`}
             >
-              K
+              {avatarChar}
             </div>
           </div>
         </div>
@@ -1325,6 +1339,22 @@ function App() {
         {activeTab === 'settings' && (
           <div className="space-y-6 max-w-3xl">
             <h1 className="text-2xl font-light tracking-wide">Settings</h1>
+
+            <div className="bg-slate-900/40 border border-slate-800 p-6">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-slate-500 mb-5">Profile</h3>
+              <label className="block text-xs text-slate-400 mb-2">Pilot Name</label>
+              <input
+                type="text"
+                value={userName}
+                onChange={e => setUserName(e.target.value)}
+                placeholder="例: Kentaro"
+                maxLength={40}
+                className="w-full bg-slate-950/60 border border-slate-700 px-3 py-2 text-sm text-slate-100 mono focus:outline-none focus:border-amber-400/60"
+              />
+              <div className="text-[11px] text-slate-500 mt-2">
+                ヘッダー右上に <span className="text-slate-300">{displayName} / JAL</span> として表示されます
+              </div>
+            </div>
 
             <div className="bg-slate-900/40 border border-slate-800 p-6">
               <h3 className="text-xs uppercase tracking-[0.2em] text-slate-500 mb-5">Data Management</h3>
